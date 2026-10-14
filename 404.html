@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Kanika &amp; Abhishek</title>
+<script>
+  // Send any wrong path back to the invitation, keeping ?to=Name if present.
+  (function(){
+    var parts = location.pathname.split('/').filter(Boolean);
+    var base = location.hostname.endsWith('github.io') && parts.length ? '/' + parts[0] + '/' : '/';
+    if (location.pathname === base) base = '/';   // user/organisation site or custom domain: avoid a loop
+    location.replace(base + location.search + location.hash);
+  })();
+</script>
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#FBF5EF;color:#8A4548;font:1.1rem Georgia,serif;text-align:center;padding:16px}</style>
+</head>
+<body><p>Taking you to the invitation… <a href="./" style="color:inherit">Open it here</a></p></body>
+</html>

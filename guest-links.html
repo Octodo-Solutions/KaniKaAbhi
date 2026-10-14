@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Guest Link Maker</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ms+Madi&family=Cormorant+Garamond:wght@500&family=Jost:wght@400;500&display=swap">
+<style>
+:root{color-scheme:light;--paper:#FBF5EF;--card:#FFFBF7;--rose:#B5645D;--rose-deep:#8A4548;--sage:#66785B;--ink:#4C3533;--ink-soft:#7A5F5A;--line:#E3CDBF}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:1.05rem/1.5 "Cormorant Garamond",Georgia,serif;-webkit-font-smoothing:antialiased}
+.wrap{max-width:40rem;margin:0 auto;padding:32px 16px 64px}
+h1{font:400 clamp(2.4rem,10vw,3rem)/1 "Ms Madi",cursive;color:var(--rose);margin:0;text-align:center}
+.sub{text-align:center;color:var(--ink-soft);font-style:italic;margin:6px 0 26px}
+label{display:block;font:500 .7rem/1.4 Jost,sans-serif;letter-spacing:.24em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 8px}
+input,textarea{width:100%;font:1rem/1.4 Jost,sans-serif;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+textarea{min-height:150px;resize:vertical}
+input:focus,textarea:focus{outline:2px solid var(--rose-deep);outline-offset:1px}
+.field{margin-bottom:18px}
+.hint{font-size:.95rem;color:var(--ink-soft);margin-top:6px}
+.btn{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 16px;border-radius:999px;border:1px solid var(--rose);background:transparent;color:var(--rose-deep);
+  font:500 .68rem Jost,sans-serif;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;cursor:pointer}
+.btn.solid{background:var(--rose);color:#fff}
+.btn:hover{filter:brightness(.96)}
+ul{list-style:none;padding:0;margin:22px 0 0;display:flex;flex-direction:column;gap:10px}
+li{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.name{font:500 1.1rem "Cormorant Garamond",serif;color:var(--sage)}
+.url{font:.82rem/1.4 Jost,sans-serif;color:var(--ink-soft);word-break:break-all}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:22px}
+.count{font:500 .7rem Jost,sans-serif;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Guest Link Maker</h1>
+  <p class="sub">Each link opens the invite with “Dear &lt;name&gt;,” on the envelope.</p>
+
+  <div class="field">
+    <label for="base">Invitation address</label>
+    <input id="base" type="url" inputmode="url" autocomplete="off">
+    <p class="hint">Filled in automatically once this page is live. Change it only if you use a custom domain.</p>
+  </div>
+  <div class="field">
+    <label for="names">Guest names, one per line</label>
+    <textarea id="names" placeholder="Sharma Family&#10;Neha &amp; Rohit&#10;Mr. &amp; Mrs. Gupta"></textarea>
+  </div>
+
+  <div class="top">
+    <span class="count" id="count">0 links</span>
+    <button class="btn" id="copyAll" type="button">Copy all links</button>
+  </div>
+  <ul id="out"></ul>
+</div>
+<script>
+(function(){
+  var base = document.getElementById('base'), names = document.getElementById('names'),
+      out = document.getElementById('out'), count = document.getElementById('count');
+  base.value = location.href.replace(/guest-links\.html.*$/, '');
+  try { var saved = localStorage.getItem('kanikabhi-names'); if (saved) names.value = saved; } catch(e){}
+
+  function link(n){ var b = base.value.trim(); if (b && !/\/$/.test(b) && !/\.html$/.test(b)) b += '/'; return b + '?to=' + encodeURIComponent(n); }
+  function list(){ return names.value.split('\n').map(function(s){ return s.trim(); }).filter(Boolean); }
+  function copy(text, btn, label){
+    function done(){ btn.textContent = 'Copied'; setTimeout(function(){ btn.textContent = label; }, 1500); }
+    try { navigator.clipboard.writeText(text).then(done, function(){ prompt('Copy this:', text); }); } catch(e){ prompt('Copy this:', text); }
+  }
+  function render(){
+    try { localStorage.setItem('kanikabhi-names', names.value); } catch(e){}
+    var ns = list(); out.innerHTML = '';
+    count.textContent = ns.length + (ns.length === 1 ? ' link' : ' links');
+    ns.forEach(function(n){
+      var url = link(n);
+      var msg = 'Dear ' + n + ', with joy we invite you to the wedding celebrations of Kanika & Abhishek, 17th & 18th November 2026, Jaipur. Please open your invitation: ' + url;
+      var li = document.createElement('li');
+      var nm = document.createElement('span'); nm.className = 'name'; nm.textContent = n;
+      var u = document.createElement('span'); u.className = 'url'; u.textContent = url;
+      var row = document.createElement('div'); row.className = 'row';
+      var c = document.createElement('button'); c.type = 'button'; c.className = 'btn'; c.textContent = 'Copy link';
+      c.onclick = function(){ copy(url, c, 'Copy link'); };
+      var w = document.createElement('a'); w.className = 'btn solid'; w.textContent = 'Send on WhatsApp';
+      w.href = 'https://wa.me/?text=' + encodeURIComponent(msg); w.target = '_blank'; w.rel = 'noopener';
+      var o = document.createElement('a'); o.className = 'btn'; o.textContent = 'Preview'; o.href = url; o.target = '_blank'; o.rel = 'noopener';
+      row.append(c, w, o); li.append(nm, u, row); out.appendChild(li);
+    });
+  }
+  names.addEventListener('input', render); base.addEventListener('input', render);
+  var all = document.getElementById('copyAll');
+  all.onclick = function(){ copy(list().map(function(n){ return n + ': ' + link(n); }).join('\n'), all, 'Copy all links'); };
+  render();
+})();
+</script>
+</body>
+</html>
